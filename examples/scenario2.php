@@ -1,4 +1,3 @@
-
 <?php
 
 use GreatFood\Http\CurlHttpClient;
@@ -21,29 +20,30 @@ if (getenv('BASE_URL')) {
 $tokens = new TokenProvider($baseUrl, $clientId, $clientSecret, $http);
 $api = new GreatFoodClient($baseUrl, $http, $tokens);
 
-// 1) Find menu named "Takeaway"
-$menus = $api->getMenus();
-$takeaway = null;
-foreach ($menus as $m) {
-    if (strcasecmp($m['name'], 'Takeaway') === 0) {
-        $takeaway = $m;
+$menuId = 7;
+$productId = 84;
+
+$products = $api->getMenuProducts($menuId);
+
+$current = null;
+foreach ($products as $p) {
+    if ((int)$p['id'] === $productId) {
+        $current = $p;
         break;
     }
 }
-if (!$takeaway) {
-    fwrite(STDERR, "Menu 'Takeaway' not found\n");
+if (!$current) {
+    fwrite(STDERR, "Product {$productId} not found in menu {$menuId}\n");
     exit(1);
 }
-$menuId = (int)$takeaway['id'];
 
-// 2) Fetch products for that menu
-$products = $api->getMenuProducts($menuId);
+// Update the product name
+$current['name'] = 'Chips';
 
-// 3) Print table
-echo "| ID | Name |\n";
-echo "| -- | ---- |\n";
-foreach ($products as $p) {
-    $id = (int)($p['id'] ?? 0);
-    $name = (string)($p['name'] ?? '');
-    printf("| %d | %s |\n", $id, $name);
-}
+// PUT the updated product model
+$updated = $api->updateProduct($menuId, $productId, $current);
+
+// Proof of success
+echo "Update successful.\n";
+echo "Updated product payload returned by API:\n";
+echo json_encode($updated, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";

@@ -1,6 +1,9 @@
 services:
   nginx:
     image: nginx:alpine
+    configs:
+      - source: nginx_conf
+        target: /etc/nginx/conf.d/default.conf
     volumes:
       - .:/app
       - ./docker/nginx/nginx-swarm.conf:/etc/nginx/conf.d/default.conf
@@ -22,16 +25,20 @@ services:
     image: greatfood-php
     env_file:
       - .env
-    environment:
-      PHP_IDE_CONFIG: "serverName=php"
-    user: 1000:1000
     networks:
       - app
     volumes:
       - .:/app
+      - vendor_data:/app/vendor
 
 networks:
   app:
   traefik-public:
     external: true
 
+configs:
+  nginx_conf:
+    file: ./docker/nginx/nginx-swarm.conf
+
+volumes:
+  vendor_data:
