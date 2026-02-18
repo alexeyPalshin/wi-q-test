@@ -1,4 +1,3 @@
-
 <?php
 
 use GreatFood\Http\CurlHttpClient;

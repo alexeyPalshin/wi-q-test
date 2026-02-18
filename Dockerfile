@@ -4,12 +4,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-COPY . .
+COPY composer.json composer.lock* ./
 
 RUN composer install --no-interaction --no-scripts --no-dev
 
-USER 1000
-VOLUME /app
+COPY . .
 
 CMD ["php-fpm"]
 
