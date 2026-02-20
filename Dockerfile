@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY composer.json composer.lock* ./
 
-RUN composer install --no-interaction --no-scripts --no-dev
+RUN composer install --no-interaction --no-scripts
 
 COPY . .
 

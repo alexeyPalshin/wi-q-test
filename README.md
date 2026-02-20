@@ -47,21 +47,24 @@ README.md
 # Running the Project Locally
 
 ## Option 1 — Docker Compose (Development)
+
+Rename env.example to .env and fill with your values
+
 ```bash
-docker build -t greatfood-php -f ./Dockerfile ./
+docker compose up -d --build
 docker stack deploy -c ./stack.yml greatfood
-docker exec -it {php_container_hash} composer install
+docker exec -it greatfood-php composer install
 ```
 
 Run examples:
 ```bash
-docker exec -it {php_container_hash} php examples/scenario1.php
-docker exec -it {php_container_hash} php examples/scenario2.php
+docker exec -it greatfood-php php examples/scenario1.php
+docker exec -it greatfood-php php examples/scenario2.php
 ```
 
 Run tests:
 ```bash
-docker exec -it {php_container_hash} ./vendor/bin/phpunit
+docker exec -it greatfood-php ./vendor/bin/phpunit
 ```
 ---
 
@@ -75,12 +78,11 @@ If I had more time, I would:
 2. **DTOs for entities**
    - Introduce typed DTOs (e.g., `Menu`, `Product`) for safer, self‑documenting data flow
 
-3. **Retries & logging**
-   - Add retries with backoff for transient errors (429/5xx)
+3. **Logging**
    - Add structured logging (PSR‑3) for observability
 
 4. **Distribute as a Composer package**
-   - Extract the client into a reusable Composer package (SemVer, changelog, CI)
+   - Extract the client into a reusable Composer package
 
 5. **Support alternative HTTP transports**
    - Instead of relying solely on cURL, the HTTP layer could be abstracted further to allow plugging in different transports (e.g., Guzzle, Symfony HttpClient).

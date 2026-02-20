@@ -14,7 +14,6 @@ final class MockHttpClient implements HttpClientInterface
         $this->fixtures = [
             '/auth_token' => 'token.json',
             '/menus' => 'menus.json',
-            '/menu/7/products' => 'menu-products.json',
         ];
     }
 
@@ -24,6 +23,14 @@ final class MockHttpClient implements HttpClientInterface
 
         $path = parse_url($request->url, PHP_URL_PATH) ?? '/';
         $file = $this->fixtures[$path] ?? null;
+
+
+        if (preg_match('#^/menu/\d+/products$#', $path)) {
+            $full = $this->fixturesDir . '/menu-products.json';
+            $body = (string) file_get_contents($full);
+
+            return new HttpResponse(200, ['Content-Type' => 'application/json'], $body);
+        }
 
         if ($request->method === 'PUT' && preg_match('#^/menu/\d+/product/\d+$#', $path)) {
 
