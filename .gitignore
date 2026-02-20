@@ -4,3 +4,7 @@ vendor
 
 .env
 .env.*
+
+# PHPUnit cache files
+.phpunit.result.cache
+/.phpunit.cache/

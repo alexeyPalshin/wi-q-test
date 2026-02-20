@@ -49,6 +49,7 @@ README.md
 ## Option 1 — Docker Compose (Development)
 
 Rename env.example to .env and fill with your values
+For real api provide BASE_API_URL otherwise keep it blank to use mocked
 
 ```bash
 docker compose up -d --build

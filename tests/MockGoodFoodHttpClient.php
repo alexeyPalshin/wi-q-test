@@ -1,8 +1,12 @@
 <?php
 
-namespace GreatFood\Http;
+namespace GreatFood\Tests;
 
-final class MockHttpClient implements HttpClientInterface
+use GreatFood\Http\HttpClientInterface;
+use GreatFood\Http\HttpRequest;
+use GreatFood\Http\HttpResponse;
+
+final class MockGoodFoodHttpClient implements HttpClientInterface
 {
     /** @var array<string, string> */
     private array $fixtures = [];

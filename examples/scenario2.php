@@ -1,24 +1,28 @@
 <?php
 
-use GreatFood\Http\CurlHttpClient;
-use GreatFood\Http\MockHttpClient;
-use GreatFood\Auth\TokenProvider;
 use GreatFood\Api\GreatFoodClient;
+use GreatFood\Auth\TokenProvider;
+use GreatFood\Http\AuthenticatedHttpClient;
+use GreatFood\Http\CurlHttpClient;
+use GreatFood\Tests\MockGoodFoodHttpClient;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$baseUrl = getenv('BASE_URL') ?: 'https://mock.greatfood.local';
+$baseUrl = getenv('BASE_API_URL') ?: 'https://mock.greatfood.local';
 $clientId = getenv('CLIENT_ID') ?: '1337';
 $clientSecret = getenv('CLIENT_SECRET') ?: '4j3g4gj304gj3';
 
-if (getenv('BASE_URL')) {
+if (getenv('BASE_API_URL')) {
     $http = new CurlHttpClient();
 } else {
-    $http = new MockHttpClient(__DIR__ . '/../tests/fixtures');
+    $http = new MockGoodFoodHttpClient(__DIR__ . '/../tests/fixtures');
 }
 
 $tokens = new TokenProvider($baseUrl, $clientId, $clientSecret, $http);
-$api = new GreatFoodClient($baseUrl, $http, $tokens);
+
+$authClient = new AuthenticatedHttpClient($http, $tokens);
+
+$api = new GreatFoodClient($baseUrl, $authClient);
 
 $menuId = 7;
 $productId = 84;
