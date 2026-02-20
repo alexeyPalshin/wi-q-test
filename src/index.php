@@ -1,49 +1,58 @@
-
 <?php
 
-use GreatFood\Http\CurlHttpClient;
-use GreatFood\Http\MockHttpClient;
-use GreatFood\Auth\TokenProvider;
-use GreatFood\Api\GreatFoodClient;
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-require __DIR__ . '/../vendor/autoload.php';
+function runScenario(string $cmd): string {
+    // Execute command and capture both stdout and stderr
+    $output = [];
+    $returnCode = 0;
+    exec("php " . escapeshellarg($cmd) . " 2>&1", $output, $returnCode);
 
-$baseUrl = getenv('BASE_URL') ?: 'https://mock.greatfood.local';
-$clientId = getenv('CLIENT_ID') ?: '1337';
-$clientSecret = getenv('CLIENT_SECRET') ?: '4j3g4gj304gj3';
-
-if (getenv('BASE_URL')) {
-    $http = new CurlHttpClient();
-} else {
-    $http = new MockHttpClient(__DIR__ . '/../tests/fixtures');
+    return implode("\n", $output);
 }
 
-$tokens = new TokenProvider($baseUrl, $clientId, $clientSecret, $http);
-$api = new GreatFoodClient($baseUrl, $http, $tokens);
+$result = null;
 
-// 1) Find menu named "Takeaway"
-$menus = $api->getMenus();
-$takeaway = null;
-foreach ($menus as $m) {
-    if (strcasecmp($m['name'], 'Takeaway') === 0) {
-        $takeaway = $m;
-        break;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['scenario']) && $_POST['scenario'] === '1') {
+        $result = runScenario(__DIR__ . '/../examples/scenario1.php');
+    }
+
+    if (isset($_POST['scenario']) && $_POST['scenario'] === '2') {
+        $result = runScenario(__DIR__ . '/../examples/scenario2.php');
     }
 }
-if (!$takeaway) {
-    fwrite(STDERR, "Menu 'Takeaway' not found\n");
-    exit(1);
-}
-$menuId = (int)$takeaway['id'];
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GreatFood API Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; }
+        h1 { margin-bottom: 20px; }
+        form { margin-bottom: 20px; }
+        textarea { width: 100%; height: 300px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .section { margin-bottom: 40px; }
+    </style>
+</head>
+<body>
 
-// 2) Fetch products for that menu
-$products = $api->getMenuProducts($menuId);
+<h1>GreatFood API Demo</h1>
 
-// 3) Print table
-echo "| ID | Name |\n";
-echo "| -- | ---- |\n";
-foreach ($products as $p) {
-    $id = (int)($p['id'] ?? 0);
-    $name = (string)($p['name'] ?? '');
-    printf("| %d | %s |\n", $id, $name);
-}
+<div class="section">
+    <form method="POST">
+        <button name="scenario" value="1">Run Scenario 1</button>
+        <button name="scenario" value="2">Run Scenario 2</button>
+    </form>
+</div>
+
+<?php if ($result !== null): ?>
+    <h2>Result:</h2>
+    <textarea readonly><?= htmlspecialchars($result) ?></textarea>
+<?php endif; ?>
+
+</body>
+</html>

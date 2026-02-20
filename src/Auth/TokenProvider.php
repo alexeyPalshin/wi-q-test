@@ -24,7 +24,13 @@ final class TokenProvider
             return $this->token;
         }
 
+        return $this->forceRefresh();
+    }
+
+    public function forceRefresh(): string
+    {
         $url = rtrim($this->baseUrl, '/') . '/auth_token';
+
         $body = http_build_query([
             'grant_type' => 'client_credentials',
             'client_id' => $this->clientId,
@@ -55,4 +61,11 @@ final class TokenProvider
 
         return $this->token;
     }
+
+    public function invalidate(): void
+    {
+        $this->token = null;
+        $this->expiresAt = 0;
+    }
+
 }

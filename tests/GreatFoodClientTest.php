@@ -2,9 +2,9 @@
 
 namespace GreatFood\Tests;
 
-use GreatFood\Http\MockHttpClient;
-use GreatFood\Auth\TokenProvider;
 use GreatFood\Api\GreatFoodClient;
+use GreatFood\Auth\TokenProvider;
+use GreatFood\Http\AuthenticatedHttpClient;
 use PHPUnit\Framework\TestCase;
 
 final class GreatFoodClientTest extends TestCase
@@ -14,9 +14,10 @@ final class GreatFoodClientTest extends TestCase
     protected function setUp(): void
     {
         $baseUrl = 'https://mock.greatfood.local';
-        $http = new MockHttpClient(__DIR__ . '/fixtures');
+        $http = new MockGoodFoodHttpClient(__DIR__ . '/fixtures');
         $tokens = new TokenProvider($baseUrl, '1337', '4j3g4gj304gj3', $http);
-        $this->api = new GreatFoodClient($baseUrl, $http, $tokens);
+        $authClient = new AuthenticatedHttpClient($http, $tokens);
+        $this->api = new GreatFoodClient($baseUrl, $authClient);
     }
 
     public function testScenario1ListsProductsFromTakeaway(): void
