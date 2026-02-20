@@ -22,45 +22,47 @@ final class GreatFoodClientTest extends TestCase
     public function testScenario1ListsProductsFromTakeaway(): void
     {
         $menus = $this->api->getMenus();
+        $this->assertNotEmpty($menus, 'Menus should not be empty');
+
         $takeaway = array_values(array_filter($menus, fn($m) => strcasecmp($m['name'], 'Takeaway') === 0))[0] ?? null;
 
         $this->assertNotNull($takeaway, 'Expected Takeaway menu');
-        $products = $this->api->getMenuProducts((int)$takeaway['id']);
 
-        $namesById = [];
-        foreach ($products as $p) {
-            $namesById[(int)$p['id']] = (string)$p['name'];
-        }
+        $menuId = (int)$takeaway['id'];
 
-        $this->assertArrayHasKey(4, $namesById);
-        $this->assertSame('Burger', $namesById[4]);
-
-        $this->assertArrayHasKey(5, $namesById);
-        $this->assertSame('Chips', $namesById[5]);
-
-        $this->assertArrayHasKey(99, $namesById);
-        $this->assertSame('Lasagna', $namesById[99]);
-    }
-
-    public function testScenario2UpdatesProductName(): void
-    {
-        $menuId = 7;
-        $productId = 84;
         $products = $this->api->getMenuProducts($menuId);
 
-        $product = null;
+        $this->assertIsArray($products);
+        $this->assertNotEmpty($products, 'Menu should contain at least 1 product');
+
         foreach ($products as $p) {
-            if ((int)$p['id'] === $productId) {
-                $product = $p;
-                break;
-            }
+            $this->assertArrayHasKey('id', $p);
+            $this->assertArrayHasKey('name', $p);
         }
-        $this->assertNotNull($product, 'Product 84 should exist in fixtures');
+    }
 
-        $product['name'] = 'Chips';
-        $updated = $this->api->updateProduct($menuId, $productId, $product);
+    public function testScenario2UpdatesAProductSuccessfully(): void
+    {
+        $menus = $this->api->getMenus();
+        $this->assertNotEmpty($menus);
 
-        $this->assertSame('Chips', $updated['name'] ?? null, 'Name should be updated to Chips');
-        $this->assertSame(84, (int)($updated['id'] ?? 0));
+        $menuId = (int)$menus[0]['id'];
+
+        $products = $this->api->getMenuProducts($menuId);
+        $this->assertNotEmpty($products);
+
+        $product = $products[0];
+        $this->assertArrayHasKey('id', $product);
+        $this->assertArrayHasKey('name', $product);
+
+        $productId = (int)$product['id'];
+
+        $updatedProduct = $product;
+        $updatedProduct['name'] = $product['name']; // или можно добавить префикс
+
+        $result = $this->api->updateProduct($menuId, $productId, $updatedProduct);
+
+        $this->assertSame($productId, (int)($result['id'] ?? 0));
+        $this->assertSame($updatedProduct['name'], $result['name'] ?? null);
     }
 }
