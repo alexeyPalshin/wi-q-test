@@ -26,17 +26,19 @@ $api = new GreatFoodClient($baseUrl, $authClient);
 // 1) Find menu named "Takeaway"
 $menus = $api->getMenus();
 $takeaway = null;
+
 foreach ($menus as $m) {
-    if (strcasecmp($m['name'], 'Takeaway') === 0) {
+    if (strcasecmp($m->name, 'Takeaway') === 0) {
         $takeaway = $m;
         break;
     }
 }
+
 if (!$takeaway) {
     fwrite(STDERR, "Menu 'Takeaway' not found\n");
     exit(1);
 }
-$menuId = (int)$takeaway['id'];
+$menuId = (int)$takeaway->id;
 
 // 2) Fetch products for that menu
 $products = $api->getMenuProducts($menuId);
@@ -44,8 +46,7 @@ $products = $api->getMenuProducts($menuId);
 // 3) Print table
 echo "| ID | Name |\n";
 echo "| -- | ---- |\n";
+
 foreach ($products as $p) {
-    $id = (int)($p['id'] ?? 0);
-    $name = (string)($p['name'] ?? '');
-    printf("| %d | %s |\n", $id, $name);
+    echo "{$p->id} | {$p->name}\n";
 }

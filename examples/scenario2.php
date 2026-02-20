@@ -24,14 +24,14 @@ $authClient = new AuthenticatedHttpClient($http, $tokens);
 
 $api = new GreatFoodClient($baseUrl, $authClient);
 
-$menuId = 7;
-$productId = 84;
+$menuId = 4;
+$productId = 3;
 
 $products = $api->getMenuProducts($menuId);
 
 $current = null;
 foreach ($products as $p) {
-    if ((int)$p['id'] === $productId) {
+    if ((int)$p->id === $productId) {
         $current = $p;
         break;
     }
@@ -42,7 +42,7 @@ if (!$current) {
 }
 
 // Update the product name
-$current['name'] = 'Chips';
+$current->name = 'Chips';
 
 // PUT the updated product model
 $updated = $api->updateProduct($menuId, $productId, $current);

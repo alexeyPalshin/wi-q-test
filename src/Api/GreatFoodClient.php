@@ -2,6 +2,8 @@
 
 namespace GreatFood\Api;
 
+use GreatFood\Dto\Menu;
+use GreatFood\Dto\Product;
 use GreatFood\Http\HttpClientInterface;
 use GreatFood\Http\HttpRequest;
 use GreatFood\Exceptions\ApiException;
@@ -24,11 +26,11 @@ final class GreatFoodClient
         }
 
         $data = $res->json();
+
         $menus = $data['data'] ?? [];
-        return array_map(
-            fn($m) => ['id' => (int)$m['id'], 'name' => (string)$m['name']],
-            $menus
-        );
+
+        return array_map(fn($m) => Menu::fromArray($m), $menus);
+
     }
 
     /** @return array<int, array<string,mixed>> */
@@ -42,11 +44,12 @@ final class GreatFoodClient
         }
 
         $data = $res->json();
-        return $data['data'] ?? [];
+        $items = $data['data'] ?? [];
+
+        return array_map(fn($p) => Product::fromArray($p), $items);
     }
 
-    /** @return array<string,mixed> */
-    public function updateProduct(int $menuId, int $productId, array $product): array
+    public function updateProduct(int $menuId, int $productId, Product $product): Product
     {
 //        $url = rtrim($this->baseUrl, '/') . "/menu/{$menuId}/product/{${'productId'}}";
         $url = rtrim($this->baseUrl, '/') . "/menu/{$menuId}/product/{$productId}";
@@ -62,6 +65,6 @@ final class GreatFoodClient
             throw new ApiException("PUT /menu/{$menuId}/product/{$productId} failed ({$res->statusCode})");
         }
 
-        return $res->json();
+        return Product::fromArray($res->json());
     }
 }
